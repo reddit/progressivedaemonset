@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gate-remover-controller
+  namespace: progressive-rollout-controller
+  labels:
+    app: gate-remover-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gate-remover-controller
+  template:
+    metadata:
+      labels:
+        app: gate-remover-controller
+    spec:
+      serviceAccountName: gate-remover-controller
+      containers:
+        - name: gate-remover
+          # local development image: progressive-rollout-controller:vdev
+          image: progressive-rollout-controller:${IMAGE_VERSION} # image tag will be replaced by kustomize
+          args:
+            - "--auto-include-new-daemonsets=${AUTO_INCLUDE_NEW_DAEMONSETS:=false}"
+            - "--rollout-interval=${ROLLOUT_INTERVAL:=5s}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9443
+              name: webhook-server
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+          volumeMounts:
+            - name: certs
+              readOnly: true
+              mountPath: "/tls"
+      volumes:
+        - name: certs
+          secret:
+            secretName: progressive-rollout-webhook-cert

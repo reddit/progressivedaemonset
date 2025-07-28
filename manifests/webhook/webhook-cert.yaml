@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: webhook-issuer
+  namespace: progressive-rollout-controller
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: progressive-rollout-webhook
+  namespace: progressive-rollout-controller
+spec:
+  dnsNames:
+    - webhook-service.progressive-rollout-controller.svc
+    - webhook-service.progressive-rollout-controller.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: webhook-issuer
+  secretName: progressive-rollout-webhook-cert

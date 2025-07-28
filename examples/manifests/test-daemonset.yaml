@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: test-daemonset
+  annotations:
+    infrared.reddit.com/daemonset-progressive-first-rollout-interval: "10s"
+  labels:
+    infrared.reddit.com/daemonset-progressive-first-rollout-enabled: "true"
+spec:
+  selector:
+    matchLabels:
+      app: test-daemonset
+  template:
+    metadata:
+      labels:
+        app: test-daemonset
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: [ "sleep", "350" ]
