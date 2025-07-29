@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: progressivedaemonset
+  namespace: progressivedaemonset
+spec:
+  selector:
+    matchLabels:
+      app: progressivedaemonset
+  podMetricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+  namespaceSelector:
+    matchNames:
+      - progressivedaemonset

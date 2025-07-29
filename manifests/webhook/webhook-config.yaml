@@ -1,0 +1,55 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: progressivedaemonset-webhook
+  annotations:
+    cert-manager.io/inject-ca-from: "progressivedaemonset/progressivedaemonset-webhook"
+webhooks:
+  - name: progressivedaemonset.infrared.reddit.com
+    objectSelector:
+      matchLabels:
+        infrared.reddit.com/daemonset-progressive-first-rollout-enabled: "true"
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: progressivedaemonset
+        path: /daemonset/mutate
+        port: 9443
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        resources: ["daemonsets"]
+      - operations: [ "UPDATE" ]
+        apiGroups: [ "apps" ]
+        apiVersions: [ "v1" ]
+        resources: [ "daemonsets" ]
+    failurePolicy: ${FAILURE_POLICY:=Ignore}
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: pod-progressivedaemonset
+  annotations:
+    cert-manager.io/inject-ca-from: "progressivedaemonset/progressivedaemonset-webhook"
+webhooks:
+  - name: pod-progressivedaemonset.infrared.reddit.com
+    objectSelector:
+      matchLabels:
+        infrared.reddit.com/daemonset-progressive-first-rollout-enabled: "true"
+    clientConfig:
+      service:
+        name: webhook-service
+        namespace: progressivedaemonset
+        path: /pod/mutate
+        port: 9443
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [ "" ]
+        apiVersions: [ "v1" ]
+        resources: [ "pods" ]
+    failurePolicy: ${FAILURE_POLICY:=Ignore}
+    admissionReviewVersions: ["v1"]
+    sideEffects: None

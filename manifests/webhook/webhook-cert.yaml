@@ -1,0 +1,21 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: webhook-issuer
+  namespace: progressivedaemonset
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: progressivedaemonset-webhook
+  namespace: progressivedaemonset
+spec:
+  dnsNames:
+    - webhook-service.progressivedaemonset.svc
+    - webhook-service.progressivedaemonset.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: webhook-issuer
+  secretName: progressivedaemonset-webhook-cert

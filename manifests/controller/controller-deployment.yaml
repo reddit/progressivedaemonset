@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: progressivedaemonset
+  namespace: progressivedaemonset
+  labels:
+    app: progressivedaemonset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: progressivedaemonset
+  template:
+    metadata:
+      labels:
+        app: progressivedaemonset
+    spec:
+      serviceAccountName: progressivedaemonset
+      containers:
+        - name: progressivedaemonset
+          # local development image: progressivedaemonset:vdev
+          image: progressivedaemonset:${IMAGE_VERSION} # image tag will be replaced by kustomize
+          args:
+            - "--auto-include-new-daemonsets=${AUTO_INCLUDE_NEW_DAEMONSETS:=false}"
+            - "--rollout-interval=${ROLLOUT_INTERVAL:=5s}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9443
+              name: webhook-server
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+          volumeMounts:
+            - name: certs
+              readOnly: true
+              mountPath: "/tls"
+      volumes:
+        - name: certs
+          secret:
+            secretName: progressivedaemonset-webhook-cert
