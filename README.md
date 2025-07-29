@@ -18,12 +18,12 @@ This will create the cluster, load necessary images, and apply relevant configur
 ```console
 $ make kind
 
-# progressivedaemonset controller will be running in the `progressivedaemonset` namespace.
 $ kubectl get pods -n progressivedaemonset
 NAME                                    READY   STATUS    RESTARTS   AGE
 progressivedaemonset-6957f78945-6v29m   1/1     Running   0          10m
-
 ```
+ProgressiveDaemonSet controller will be running in the `progressivedaemonset` namespace.
+
 3. Apply DaemonSet:
 ```console
 $ kubectl apply -f examples/manifests/test-daemonset.yaml -n progressivedaemonset
@@ -31,8 +31,7 @@ $ kubectl apply -f examples/manifests/test-daemonset.yaml -n progressivedaemonse
 4. Watch the rollout:
 ```console
 $ kubectl get pods -n progressivedaemonset -w
-# progressivedaemonset controller removes scheduling gates on the 4 DaemonSet pods incrementally, 
-# configured to every 10 seconds in this example (see `examples/manifests/test-daemonset.yaml`).
+
 NAME                                    READY   STATUS    RESTARTS   AGE
 progressivedaemonset-6957f78945-6v29m   1/1     Running   0          10m
 test-daemonset-qpv5t                    0/1     SchedulingGated   0          0s
@@ -54,3 +53,4 @@ test-daemonset-czqfp                    0/1     ContainerCreating   0          3
 test-daemonset-czqfp                    1/1     Running             0          34s
 
 ```
+The ProgressiveDaemonSet controller removes scheduling gates on the 4 DaemonSet pods incrementally, configured to every 10 seconds in this example (see `examples/manifests/test-daemonset.yaml`).
