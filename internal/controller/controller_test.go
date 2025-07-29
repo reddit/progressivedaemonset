@@ -709,7 +709,7 @@ func TestUpdateRolloutIntervalViaAnnotation(t *testing.T) {
 		}
 
 		return !pod3GateRemoved.IsZero() && !pod4GateRemoved.IsZero()
-	}, 25*time.Second, 100*time.Millisecond, "remaining pods should have scheduling gates removed")
+	}, 25*time.Second, 10*time.Millisecond, "remaining pods should have scheduling gates removed")
 
 	updatedTimeDiff := pod4GateRemoved.Sub(pod3GateRemoved)
 	t.Logf("Updated interval time between pod gate removals: %v", updatedTimeDiff.Round(time.Millisecond))

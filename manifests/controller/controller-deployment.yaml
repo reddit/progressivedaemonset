@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gate-remover-controller
-  namespace: progressive-rollout-controller
+  name: progressivedaemonset
+  namespace: progressivedaemonset
   labels:
-    app: gate-remover-controller
+    app: progressivedaemonset
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gate-remover-controller
+      app: progressivedaemonset
   template:
     metadata:
       labels:
-        app: gate-remover-controller
+        app: progressivedaemonset
     spec:
-      serviceAccountName: gate-remover-controller
+      serviceAccountName: progressivedaemonset
       containers:
-        - name: gate-remover
-          # local development image: progressive-rollout-controller:vdev
-          image: progressive-rollout-controller:${IMAGE_VERSION} # image tag will be replaced by kustomize
+        - name: progressivedaemonset
+          # local development image: progressivedaemonset:vdev
+          image: progressivedaemonset:${IMAGE_VERSION} # image tag will be replaced by kustomize
           args:
             - "--auto-include-new-daemonsets=${AUTO_INCLUDE_NEW_DAEMONSETS:=false}"
             - "--rollout-interval=${ROLLOUT_INTERVAL:=5s}"
@@ -38,4 +38,4 @@ spec:
       volumes:
         - name: certs
           secret:
-            secretName: progressive-rollout-webhook-cert
+            secretName: progressivedaemonset-webhook-cert

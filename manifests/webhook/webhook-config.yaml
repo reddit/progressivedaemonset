@@ -1,18 +1,18 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: progressive-rollout-webhook
+  name: progressivedaemonset-webhook
   annotations:
-    cert-manager.io/inject-ca-from: "progressive-rollout-controller/progressive-rollout-webhook"
+    cert-manager.io/inject-ca-from: "progressivedaemonset/progressivedaemonset-webhook"
 webhooks:
-  - name: progressive-rollout.infrared.reddit.com
+  - name: progressivedaemonset.infrared.reddit.com
     objectSelector:
       matchLabels:
         infrared.reddit.com/daemonset-progressive-first-rollout-enabled: "true"
     clientConfig:
       service:
         name: webhook-service
-        namespace: progressive-rollout-controller
+        namespace: progressivedaemonset
         path: /daemonset/mutate
         port: 9443
     rules:
@@ -31,18 +31,18 @@ webhooks:
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: pod-progressive-rollout-webhook
+  name: pod-progressivedaemonset
   annotations:
-    cert-manager.io/inject-ca-from: "progressive-rollout-controller/progressive-rollout-webhook"
+    cert-manager.io/inject-ca-from: "progressivedaemonset/progressivedaemonset-webhook"
 webhooks:
-  - name: pod-progressive-rollout.infrared.reddit.com
+  - name: pod-progressivedaemonset.infrared.reddit.com
     objectSelector:
       matchLabels:
         infrared.reddit.com/daemonset-progressive-first-rollout-enabled: "true"
     clientConfig:
       service:
         name: webhook-service
-        namespace: progressive-rollout-controller
+        namespace: progressivedaemonset
         path: /pod/mutate
         port: 9443
     rules:

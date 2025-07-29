@@ -1,16 +1,16 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: progressive-rollout-controller
-  namespace: progressive-rollout-controller
+  name: progressivedaemonset
+  namespace: progressivedaemonset
 spec:
   selector:
     matchLabels:
-      app: gate-remover-controller
+      app: progressivedaemonset
   podMetricsEndpoints:
     - port: metrics
       path: /metrics
       interval: 15s
   namespaceSelector:
     matchNames:
-      - progressive-rollout-controller
+      - progressivedaemonset

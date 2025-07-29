@@ -50,8 +50,7 @@ lint: $(STATICCHECK) $(GOIMPORTS)
 
 .PHONY: docker-build
 docker-build:
-	docker build --target development -t progressive-rollout-controller:$(IMAGE_VERSION) .
-    # Optional: For production image use: docker build --target production -t progressive-rollout-controller:$(IMAGE_VERSION) .
+	docker build --target development -t progressivedaemonset:$(IMAGE_VERSION) .
 	# check if image exists before pulling
 	# possible docker/kind bug that requires pulling specific image digest https://github.com/kubernetes-sigs/kind/issues/3795#issuecomment-2652220930
 	docker image inspect busybox-arm64:1.37 >/dev/null 2>&1 || docker pull busybox@sha256:fa8dc70514f29471fe118446e3f84040b19791531ec197836a4f43baf13d744b
@@ -60,20 +59,30 @@ docker-build:
 .PHONY: kind
 kind: docker-build
 	kind create cluster --config examples/manifests/test-cluster-config.yaml
-	kind load docker-image progressive-rollout-controller:$(IMAGE_VERSION)
+	kind load docker-image progressivedaemonset:$(IMAGE_VERSION)
 	kind load docker-image busybox-arm64:1.37 --name kind
 	kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml
 	kubectl wait --for=condition=available deployment --all -n cert-manager --timeout=120s
-	kubectl create namespace progressive-rollout-controller
+	kubectl create namespace progressivedaemonset
 	make apply-manifests
-	@echo "Progressive Rollout Controller is now running in the Kind cluster!"
-	@echo "To apply a sample DaemonSet, run: kubectl apply -f examples/manifests/test-daemonset.yaml -n progressive-rollout-controller"
-	@echo "To watch the rollout, run: kubectl get pods -n progressive-rollout-controller -w"
+	@echo "ProgressiveDaemonSet is now running in the Kind cluster!"
+	@echo "To apply a sample DaemonSet, run: kubectl apply -f examples/manifests/test-daemonset.yaml -n progressivedaemonset"
+	@echo "To watch the rollout, run: kubectl get pods -n progressivedaemonset -w"
 
 .PHONY: apply-manifests
 apply-manifests:
-	@echo "→ deploying with IMAGE_VERSION=$(IMAGE_VERSION)"
-	kustomize build manifests | IMAGE_VERSION=$(IMAGE_VERSION) flux envsubst --strict | kubectl apply --context kind-kind -f - # replace IMAGE_VERSION in deployment for local testing
+	@echo "→ Deploying with IMAGE_VERSION=$(IMAGE_VERSION)"
+	kustomize build manifests/local | IMAGE_VERSION=$(IMAGE_VERSION) flux envsubst --strict | kubectl apply --context kind-kind -f - # replace IMAGE_VERSION in deployment for local testing
+
+
+.PHONY: deploy
+deploy:
+	@echo "→ Deploying ProgressiveDaemonSet controller to your cluster with image version $(IMAGE_VERSION)"
+	@echo "Make sure you're connected to your target cluster"
+	kubectl create namespace progressivedaemonset --dry-run=client -o yaml | kubectl apply -f -
+	kustomize build manifests | IMAGE_VERSION=$(IMAGE_VERSION) flux envsubst --strict | kubectl apply -f -
+	@echo "✓ ProgressiveDaemonSet controller successfully deployed!"
+	@echo "To apply a sample DaemonSet, run: kubectl apply -f examples/manifests/test-daemonset.yaml -n progressivedaemonset"
 
 ### Tools
 # Helpers to download various build tools
